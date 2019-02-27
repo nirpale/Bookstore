@@ -1,5 +1,8 @@
 package com.example.Bookstore1.web;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.Bookstore1.domain.Book;
 import com.example.Bookstore1.domain.BookRepository;
 import com.example.Bookstore1.domain.CategoryRepository;
+
+
 @Controller
 public class BookController {
 	
@@ -20,14 +25,27 @@ public class BookController {
 	@Autowired
 	private CategoryRepository crepository;
 	
+	//show buks
 	@RequestMapping(value="/booklist")
 	public String bookList(Model model) {
 		model.addAttribute("books", repository.findAll());
 		
 		return "booklist";
-		
-		}
+	}
 	
+	//RESTful show buks
+	@RequestMapping(value="/books", method = RequestMethod.GET)
+    public @ResponseBody List<Book> bookListRest() {	
+        return (List<Book>) repository.findAll();
+    }
+	
+	// RESTful get buk by id
+    @RequestMapping(value="/book/{id}", method = RequestMethod.GET)
+    public @ResponseBody Optional<Book> findBookRest(@PathVariable("id") Long bookId) {	
+    	return repository.findById(bookId);
+    }
+	
+	//add buk
 	@RequestMapping(value = "/add")
 	public String addBook(Model model){
 		model.addAttribute("book", new Book());
@@ -36,14 +54,15 @@ public class BookController {
 		return "addbook";
 	}
 	
+	//save
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String save(Book book){
 		repository.save(book);
 		
 		return "redirect:booklist";
-	
 	}
 	
+	//delit buk
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	public String deleteBook(@PathVariable("id") Long bookId, Model model) {
 		repository.deleteById(bookId);
@@ -51,13 +70,13 @@ public class BookController {
 		return "redirect:../booklist";
 	}
 	
+	//edit buk
 	@RequestMapping(value = "/edit/{id}")
 	public String addBookt(@PathVariable("id") Long bookId, Model model){
 	model.addAttribute("book", repository.findById(bookId));
 	model.addAttribute("categories", crepository.findAll());
 	
 		return "editbook";
-	
 	}
 
 }
